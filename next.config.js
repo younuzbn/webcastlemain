@@ -2,6 +2,7 @@
 const nextConfig = {
   output: 'export',
   basePath: '/webcastlemain',
+  assetPrefix: '/webcastlemain/',
   images: {
     unoptimized: true
   },
