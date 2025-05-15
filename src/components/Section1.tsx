@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { getAssetPath } from '@/utils/assetPath';
 
 const Section1 = () => {
   const [textOpacity, setTextOpacity] = useState(1); // Start with fully visible text
@@ -136,7 +137,7 @@ const Section1 = () => {
         }}>
           <div style={{ padding: '0px' }}>
             <img 
-              src="/lulu.png" 
+              src={getAssetPath("lulu.png")}
               alt="Lulu Mall" 
               style={{
                 borderRadius: '8px',

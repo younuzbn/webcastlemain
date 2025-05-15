@@ -22,6 +22,11 @@ fi
 # Create an empty .nojekyll file
 touch out/.nojekyll
 
+# Make sure public directory is properly copied
+echo "Copying public assets to out directory..."
+mkdir -p out/webcastlemain
+cp -r public/* out/webcastlemain/ || echo "Error copying public files"
+
 # Copy our custom HTML files if they don't exist in out
 if [ ! -f "./out/index.html" ]; then
   cp public/index.html out/index.html || echo "No index.html to copy"

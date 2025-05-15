@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { getNextImagePath } from '@/utils/assetPath';
 
 const Navbar = () => {
   const [opacity, setOpacity] = useState(1); // Start fully visible
@@ -74,7 +75,7 @@ const Navbar = () => {
           paddingBottom: '15px'
         }}>
           <Image 
-            src="/logo.png" 
+            src={getNextImagePath("logo.png")}
             alt="Logo" 
             width={200} 
             height={250}
@@ -102,7 +103,7 @@ const Navbar = () => {
           <span style={{ color: 'white', fontWeight: 'normal', fontSize: '20px' }}>Technologies</span>
           <div style={{ display: 'flex', alignItems: 'center', marginLeft: '10px' }}>
             <Image 
-              src="/callicon.png" 
+              src={getNextImagePath("callicon.png")}
               alt="Call Icon" 
               width={44} 
               height={44}
@@ -136,7 +137,7 @@ const Navbar = () => {
           }}>
             <span style={{ color: 'white', fontSize: '16px', fontWeight: '500' }}>MENU</span>
             <Image 
-              src="/menu-icon.png" 
+              src={getNextImagePath("menu-icon.png")}
               alt="Menu Icon" 
               width={28} 
               height={28}

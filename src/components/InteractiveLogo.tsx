@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { getAssetPath } from '@/utils/assetPath';
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -837,7 +838,7 @@ const InteractiveLogo = () => {
         }}
       >
         <img 
-          src="/ellipse-shadow.svg" 
+          src={getAssetPath("ellipse-shadow.svg")}
           alt="Shadow" 
           style={{
             position: 'absolute',

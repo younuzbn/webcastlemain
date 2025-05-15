@@ -4,7 +4,12 @@ const nextConfig = {
   basePath: '/webcastlemain',
   assetPrefix: '/webcastlemain/',
   images: {
-    unoptimized: true
+    unoptimized: true,
+    // Ensure all domains are allowed
+    domains: ['github.com', 'younuzbn.github.io'],
+    // Make image loader use basePath
+    loader: 'default',
+    path: '/webcastlemain',
   },
   // This config is required for GitHub Pages
   trailingSlash: true,
