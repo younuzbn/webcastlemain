@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found - WebCastle</title>
+  <script>
+    // Single Page Apps for GitHub Pages
+    // https://github.com/rafgraph/spa-github-pages
+    // This script redirects to the homepage which will then handle routing correctly
+    (function(){
+      // GitHub Pages default 404 behavior is to show the 404.html page directly
+      // We need to redirect back to the root with the correct path in the URL
+      var pathSegmentsToKeep = 1; // Keep the first part (webcastlemain)
+      var l = window.location;
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, pathSegmentsToKeep + 1).join('/') + '/?/' +
+        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
+    })();
+  </script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      color: white;
+      background-color: #000;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 2rem;
+    }
+    p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Redirecting...</h1>
+  <p>If you are not redirected automatically, please click <a href="/webcastlemain/" style="color: #4a90e2;">here</a>.</p>
+</body>
+</html> 
