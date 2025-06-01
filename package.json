@@ -2,15 +2,11 @@
   "name": "my-next-app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://younuzbn.github.io/webcastlemain",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "predeploy": "npm run build",
-    "deploy": "./deploy.sh",
-    "export": "next build"
+    "lint": "next lint"
   },
   "dependencies": {
     "@types/three": "^0.176.0",
@@ -29,7 +25,6 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
     "gh-pages": "^6.3.0",
-    "ignore-loader": "^0.1.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

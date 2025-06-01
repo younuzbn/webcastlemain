@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { getAssetPath } from '@/utils/assetPath';
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -21,6 +20,8 @@ const InteractiveLogo = () => {
   const circlesRef = useRef<THREE.Group | null>(null);
   const originalPositionsRef = useRef<Float32Array | null>(null);
   const bulbPositionsRef = useRef<Float32Array | null>(null);
+  const applePositionsRef = useRef<Float32Array | null>(null);
+  const microsoftPositionsRef = useRef<Float32Array | null>(null);
   const scatterDirectionsRef = useRef<Array<{ x: number; y: number; z: number }>>([]);
   const mouseRef = useRef<THREE.Vector2>(new THREE.Vector2());
   const mouseSphereRef = useRef<THREE.Sphere>(new THREE.Sphere(new THREE.Vector3(0, 0, 0), 50));
@@ -60,7 +61,6 @@ const InteractiveLogo = () => {
     rendererRef.current = renderer;
 
     renderer.setSize(window.innerWidth, window.innerHeight);
-    // Make renderer transparent to show background
     renderer.setClearColor(0x000000, 0);
     containerRef.current.appendChild(renderer.domElement);
 
@@ -68,7 +68,7 @@ const InteractiveLogo = () => {
     camera.position.z = section1Camera.z;
     camera.position.y = section1Camera.y;
     camera.position.x = section1Camera.x;
-    camera.far = 3000; // Increase camera far plane to see more distant objects
+    camera.far = 3000;
     camera.updateProjectionMatrix();
     
     // Create first logo SVG paths in offscreen canvas to sample points
@@ -92,6 +92,12 @@ const InteractiveLogo = () => {
       'M74.88 75.27c-1.96 1.86-5.07 1.78-6.93-.18l-22.36-22.36c-.06-.06-.12-.11-.18-.17-1.86-1.96-1.79-5.07.18-6.93 1.96-1.87 5.06-1.79 6.92.17l22.37 22.37c.06.05.11.11.17.17 1.86 1.96 1.79 5.06-.17 6.93Z',
       'M223.78 111.81c-15.46-22.24-40.84-35.51-67.92-35.51h0c-45.69 0-82.72 37.04-82.71 82.73 0 27.09 13.26 52.46 35.51 67.92 4.96 3.39 9.1 7.84 12.14 13.03h70.12c3.04-5.19 7.19-9.63 12.15-13.03 37.51-26.07 46.79-77.62 20.72-115.14ZM213.12 134.16c-2.42 1.22-5.37.25-6.59-2.17-9.28-18.37-29.18-30.23-50.68-30.23-2.71 0-4.9-2.2-4.9-4.9h0c0-2.72 2.2-4.91 4.9-4.91 25.17 0 48.5 13.99 59.43 35.62 1.22 2.41.26 5.36-2.16 6.59Z'
     ];
+
+    // Add Apple SVG path
+    const applePath = 'M 44.527344 34.75 C 43.449219 37.144531 42.929688 38.214844 41.542969 40.328125 C 39.601563 43.28125 36.863281 46.96875 33.480469 46.992188 C 30.46875 47.019531 29.691406 45.027344 25.601563 45.0625 C 21.515625 45.082031 20.664063 47.03125 17.648438 47 C 14.261719 46.96875 11.671875 43.648438 9.730469 40.699219 C 4.300781 32.429688 3.726563 22.734375 7.082031 17.578125 C 9.457031 13.921875 13.210938 11.773438 16.738281 11.773438 C 20.332031 11.773438 22.589844 13.746094 25.558594 13.746094 C 28.441406 13.746094 30.195313 11.769531 34.351563 11.769531 C 37.492188 11.769531 40.8125 13.480469 43.1875 16.433594 C 35.421875 20.691406 36.683594 31.78125 44.527344 34.75 Z M 31.195313 8.46875 C 32.707031 6.527344 33.855469 3.789063 33.4375 1 C 30.972656 1.167969 28.089844 2.742188 26.40625 4.78125 C 24.878906 6.640625 23.613281 9.398438 24.105469 12.066406 C 26.796875 12.152344 29.582031 10.546875 31.195313 8.46875 Z';
+
+    // Add Microsoft SVG path
+    const microsoftPath = 'M 5 4 C 4.448 4 4 4.447 4 5 L 4 24 L 24 24 L 24 4 L 5 4 z M 26 4 L 26 24 L 46 24 L 46 5 C 46 4.447 45.552 4 45 4 L 26 4 z M 4 26 L 4 45 C 4 45.553 4.448 46 5 46 L 24 46 L 24 26 L 4 26 z M 26 26 L 26 46 L 45 46 C 45.552 46 46 45.553 46 45 L 46 26 L 26 26 z';
 
     // For the logo, use the original extraction method to get exactly the same particles
     const getLogoPoints = () => {
@@ -192,11 +198,103 @@ const InteractiveLogo = () => {
       return validPoints;
     };
 
-    // Extract points for both shapes
+    // Function to extract points from Apple SVG path
+    const extractApplePoints = (svgPath: string) => {
+      const offscreenCanvas = document.createElement('canvas');
+      const context = offscreenCanvas.getContext('2d');
+      offscreenCanvas.width = 1500;
+      offscreenCanvas.height = 2000;
+      
+      if (!context) return [];
+    
+      context.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+      context.fillStyle = 'white';
+      
+      context.resetTransform();
+      context.scale(15, 15); // Keep the good size
+      context.translate(8.0, 15); // Changed y from 85 to 65 to move it up
+      
+      const pathData = new Path2D(svgPath);
+      context.fill(pathData);
+      
+      const imgData = context.getImageData(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+      const validPoints: Array<{ x: number; y: number }> = [];
+      
+      const gridSpacing = 10;
+      const randomOffset = () => (Math.random() - 0.5) * gridSpacing * 0.0;
+      
+      const svgWidth = 312; // Match bulb's width
+      const svgHeight = 304; // Match bulb's height
+      const xOffset = svgWidth / 2;
+      const yOffset = svgHeight / 2;
+      
+      for (let y = 0; y < offscreenCanvas.height; y += gridSpacing) {
+        for (let x = 0; x < offscreenCanvas.width; x += gridSpacing) {
+          const i = (y * offscreenCanvas.width + x) * 4;
+          if (imgData.data[i] > 0) {
+            validPoints.push({
+              x: x / 3 - xOffset + randomOffset(),
+              y: -y / 3 + yOffset + randomOffset()
+            });
+          }
+        }
+      }
+      
+      return validPoints;
+    };
+
+    // Function to extract points from Microsoft SVG path
+    const extractMicrosoftPoints = (svgPath: string) => {
+      const offscreenCanvas = document.createElement('canvas');
+      const context = offscreenCanvas.getContext('2d');
+      offscreenCanvas.width = 1500;
+      offscreenCanvas.height = 2000;
+      
+      if (!context) return [];
+    
+      context.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+      context.fillStyle = 'white';
+      
+      context.resetTransform();
+      context.scale(15, 15); // Match the scale of other shapes
+      context.translate(8.0, 15); // Match the position of other shapes
+      
+      const pathData = new Path2D(svgPath);
+      context.fill(pathData);
+      
+      const imgData = context.getImageData(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+      const validPoints: Array<{ x: number; y: number }> = [];
+      
+      const gridSpacing = 10;
+      const randomOffset = () => (Math.random() - 0.5) * gridSpacing * 0.0;
+      
+      const svgWidth = 312; // Match other shapes' width
+      const svgHeight = 304; // Match other shapes' height
+      const xOffset = svgWidth / 2;
+      const yOffset = svgHeight / 2;
+      
+      for (let y = 0; y < offscreenCanvas.height; y += gridSpacing) {
+        for (let x = 0; x < offscreenCanvas.width; x += gridSpacing) {
+          const i = (y * offscreenCanvas.width + x) * 4;
+          if (imgData.data[i] > 0) {
+            validPoints.push({
+              x: x / 3 - xOffset + randomOffset(),
+              y: -y / 3 + yOffset + randomOffset()
+            });
+          }
+        }
+      }
+      
+      return validPoints;
+    };
+
+    // Extract points for all shapes
     const logoPoints = getLogoPoints();
     const bulbPoints = extractBulbPoints(bulbPaths);
+    const applePoints = extractApplePoints(applePath);
+    const microsoftPoints = extractMicrosoftPoints(microsoftPath);
     
-    console.log(`Original logo points: ${logoPoints.length}, Bulb points: ${bulbPoints.length}`);
+    console.log(`Original logo points: ${logoPoints.length}, Bulb points: ${bulbPoints.length}, Apple points: ${applePoints.length}, Microsoft points: ${microsoftPoints.length}`);
     
     // Create particle system using the original number of points
     const particles = new THREE.BufferGeometry();
@@ -204,8 +302,10 @@ const InteractiveLogo = () => {
     const colors = new Float32Array(logoPoints.length * 3);
     const originalPositions = new Float32Array(logoPoints.length * 3);
     const bulbPositions = new Float32Array(logoPoints.length * 3);
+    const applePositions = new Float32Array(logoPoints.length * 3);
+    const microsoftPositions = new Float32Array(logoPoints.length * 3);
     
-    // Fill both position arrays
+    // Fill position arrays
     for (let i = 0; i < logoPoints.length; i++) {
       const logoPoint = logoPoints[i];
       
@@ -225,23 +325,47 @@ const InteractiveLogo = () => {
       colors[i * 3 + 2] = 1.0;
     }
     
-    // Map the bulb points to match the logo point count
-    // This will either sample or duplicate bulb points as needed
+    // Map the points to match the logo point count
     for (let i = 0; i < logoPoints.length; i++) {
       let bulbPoint;
+      let applePoint;
+      let microsoftPoint;
       
       if (bulbPoints.length > 0) {
-        // Map index to available bulb points
         const bulbIndex = Math.floor((i / logoPoints.length) * bulbPoints.length);
         bulbPoint = bulbPoints[Math.min(bulbIndex, bulbPoints.length - 1)];
       } else {
         bulbPoint = { x: 0, y: 0 };
       }
       
-      // Bulb positions for morphing - scale and center
-      bulbPositions[i * 3] = bulbPoint.x * 1.15; // Scale the bulb to match better
-      bulbPositions[i * 3 + 1] = bulbPoint.y * 1.15; // Removed vertical offset for perfect centering
+      if (applePoints.length > 0) {
+        const appleIndex = Math.floor((i / logoPoints.length) * applePoints.length);
+        applePoint = applePoints[Math.min(appleIndex, applePoints.length - 1)];
+      } else {
+        applePoint = { x: 0, y: 0 };
+      }
+
+      if (microsoftPoints.length > 0) {
+        const microsoftIndex = Math.floor((i / logoPoints.length) * microsoftPoints.length);
+        microsoftPoint = microsoftPoints[Math.min(microsoftIndex, microsoftPoints.length - 1)];
+      } else {
+        microsoftPoint = { x: 0, y: 0 };
+      }
+      
+      // Bulb positions
+      bulbPositions[i * 3] = bulbPoint.x * 1.15;
+      bulbPositions[i * 3 + 1] = bulbPoint.y * 1.15;
       bulbPositions[i * 3 + 2] = 0;
+      
+      // Apple positions
+      applePositions[i * 3] = applePoint.x * 1.15;
+      applePositions[i * 3 + 1] = applePoint.y * 1.15;
+      applePositions[i * 3 + 2] = 0;
+
+      // Microsoft positions
+      microsoftPositions[i * 3] = microsoftPoint.x * 1.15;
+      microsoftPositions[i * 3 + 1] = microsoftPoint.y * 1.15;
+      microsoftPositions[i * 3 + 2] = 0;
     }
     
     particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -260,6 +384,8 @@ const InteractiveLogo = () => {
     particleSystemRef.current = particleSystem;
     originalPositionsRef.current = originalPositions;
     bulbPositionsRef.current = bulbPositions;
+    applePositionsRef.current = applePositions;
+    microsoftPositionsRef.current = microsoftPositions;
     
     // Initialize scatter directions
     const scatterDirections = Array(logoPoints.length).fill(0).map(() => {
@@ -279,7 +405,7 @@ const InteractiveLogo = () => {
     circlesRef.current = circlesGroup;
 
     // Add small circles in random positions
-    const circleGeometry = new THREE.CircleGeometry(2, 32);
+    const circleGeometry = new THREE.CircleGeometry(1.5, 32);
     const circleMaterial = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       transparent: true,
@@ -321,7 +447,7 @@ const InteractiveLogo = () => {
     });
 
     // Create a number of small circles - increase for more density
-    const numCircles = 50;
+    const numCircles = 20;
     for (let i = 0; i < numCircles; i++) {
       // Create random position and speed for this pair of circles
       const posX = (Math.random() - 0.5) * 1000;
@@ -396,37 +522,29 @@ const InteractiveLogo = () => {
 
     // Initialize GSAP ScrollTrigger
     const setupScrollTrigger = () => {
-      // Main trigger for section transitions
       ScrollTrigger.create({
         trigger: "body",
         start: "top top",
         end: "bottom bottom",
         onUpdate: (self) => {
-          // Calculate normalized progress for camera animation (between 1% and 50%)
+          // Calculate normalized progress for camera animation
           const animationProgress = Math.max(0, Math.min(1, (self.progress - 0.01) / (0.5 - 0.01)));
           
-          // Directly interpolate camera position based on scroll progress
           if (cameraRef.current) {
-            // Only update camera if we're between 1% and 50% scroll
             if (self.progress >= 0.01 && self.progress <= 0.5) {
-              // Linear interpolation between section1Camera and section2Camera
+              // First transition: Logo to Bulb
               cameraRef.current.position.x = section1Camera.x + (section2Camera.x - section1Camera.x) * animationProgress;
               cameraRef.current.position.y = section1Camera.y + (section2Camera.y - section1Camera.y) * animationProgress;
               cameraRef.current.position.z = section1Camera.z + (section2Camera.z - section1Camera.z) * animationProgress;
-            } else if (self.progress < 0.01) {
-              // Before 1%, stick to section1Camera
-              cameraRef.current.position.x = section1Camera.x;
-              cameraRef.current.position.y = section1Camera.y;
-              cameraRef.current.position.z = section1Camera.z;
             } else if (self.progress > 0.5) {
-              // After 50%, stick to section2Camera
+              // Stay at section2Camera position for both bulb and Apple shapes
               cameraRef.current.position.x = section2Camera.x;
               cameraRef.current.position.y = section2Camera.y;
               cameraRef.current.position.z = section2Camera.z;
             }
           }
           
-          // Update scroll data for the observer UI
+          // Update scroll data
           setScrollData(prevData => ({
             ...prevData,
             progress: self.progress,
@@ -436,29 +554,12 @@ const InteractiveLogo = () => {
             scatterForce: scatterForceRef.current
           }));
           
-          // Fade out ellipse shadow based on scroll progress
-          // Start fading at 6.5% and completely fade out by 12%
-          const ellipseFadeStartPoint = 0.065; // 6.5%
-          const ellipseFadeEndPoint = 0.12; // 12%
-          
-          if (self.progress <= ellipseFadeStartPoint) {
-            setEllipseShadowOpacity(1); // Fully visible
-          } else if (self.progress >= ellipseFadeEndPoint) {
-            setEllipseShadowOpacity(0); // Fully transparent
-          } else {
-            // Linear interpolation for smooth fade
-            const fadeProgress = (self.progress - ellipseFadeStartPoint) / (ellipseFadeEndPoint - ellipseFadeStartPoint);
-            setEllipseShadowOpacity(1 - fadeProgress);
-          }
-          
-          // Check if we've crossed the 50% threshold for particle formation
+          // Update section state
           const wasInSection2 = inSection2Ref.current;
           const isNowInSection2 = self.progress >= 0.5;
           
           if (wasInSection2 !== isNowInSection2) {
             inSection2Ref.current = isNowInSection2;
-            // We don't need to call animateCameraToSection anymore
-            // but we still need to update reform state
             shouldReformRef.current = true;
           }
         }
@@ -656,7 +757,7 @@ const InteractiveLogo = () => {
 
     // Animation loop
     const animate = () => {
-      if (!particleSystemRef.current || !originalPositionsRef.current || !bulbPositionsRef.current) return;
+      if (!particleSystemRef.current || !originalPositionsRef.current || !bulbPositionsRef.current || !applePositionsRef.current || !microsoftPositionsRef.current) return;
 
       const positions = particleSystemRef.current.geometry.attributes.position.array as Float32Array;
       
@@ -664,14 +765,13 @@ const InteractiveLogo = () => {
         for (let i = 0; i < positions.length / 3; i++) {
           const dir = scatterDirectionsRef.current[i];
           
-          positions[i * 3] += dir.x * scatterForceRef.current * 0.2; // Doubled the movement speed
-          positions[i * 3 + 1] += dir.y * scatterForceRef.current * 0.2; // Doubled the movement speed
-          positions[i * 3 + 2] += dir.z * scatterForceRef.current * 0.2; // Doubled the movement speed
+          positions[i * 3] += dir.x * scatterForceRef.current * 0.2;
+          positions[i * 3 + 1] += dir.y * scatterForceRef.current * 0.2;
+          positions[i * 3 + 2] += dir.z * scatterForceRef.current * 0.2;
         }
         
-        // Only reduce force if we should reform
         if (shouldReformRef.current) {
-          scatterForceRef.current *= 0.55; // Even faster reduction (was 0.9)
+          scatterForceRef.current *= 0.55;
           if (scatterForceRef.current < 0.1) {
             isScatteringRef.current = false;
             scatterForceRef.current = 0;
@@ -695,7 +795,19 @@ const InteractiveLogo = () => {
             positions[i * 3 + 1] += repulsionDir.y * repulsionStrength;
           } else if (shouldReformRef.current) {
             // Return to the appropriate shape based on current section
-            const targetPositions = inSection2Ref.current ? bulbPositionsRef.current : originalPositionsRef.current;
+            const scrollProgress = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+            let targetPositions;
+            
+            if (scrollProgress < 0.5) {
+              targetPositions = originalPositionsRef.current;
+            } else if (scrollProgress < 0.75) {
+              targetPositions = bulbPositionsRef.current;
+            } else if (scrollProgress < 0.9) {
+              targetPositions = applePositionsRef.current;
+            } else {
+              targetPositions = microsoftPositionsRef.current;
+            }
+            
             const returnSpeed = 0.1;
             
             positions[i * 3] += (targetPositions[i * 3] - positions[i * 3]) * returnSpeed;
@@ -704,8 +816,20 @@ const InteractiveLogo = () => {
           }
         }
       } else if (shouldReformRef.current) {
-        // Reform to the appropriate shape based on which section we're in
-        const targetPositions = inSection2Ref.current ? bulbPositionsRef.current : originalPositionsRef.current;
+        // Determine target positions based on scroll progress
+        const scrollProgress = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+        let targetPositions;
+        
+        if (scrollProgress < 0.5) {
+          targetPositions = originalPositionsRef.current;
+        } else if (scrollProgress < 0.75) {
+          targetPositions = bulbPositionsRef.current;
+        } else if (scrollProgress < 0.9) {
+          targetPositions = applePositionsRef.current;
+        } else {
+          targetPositions = microsoftPositionsRef.current;
+        }
+        
         const returnSpeed = 0.1;
         
         for (let i = 0; i < positions.length / 3; i++) {
@@ -838,7 +962,7 @@ const InteractiveLogo = () => {
         }}
       >
         <img 
-          src={getAssetPath("ellipse-shadow.svg")}
+          src="/ellipse-shadow.svg" 
           alt="Shadow" 
           style={{
             position: 'absolute',

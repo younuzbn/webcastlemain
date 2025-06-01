@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import FloatingTextBox from './FloatingTextBox';
 
 const Section2 = () => {
   const [textOpacity, setTextOpacity] = useState(0); // Start with invisible text
@@ -90,48 +91,8 @@ const Section2 = () => {
           alignItems: 'center',
           justifyContent: 'center',
         }}
-      >
-        {/* White rectangle with rounded corners */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '10%',
-            left: '7%',
-            width: '29%',
-            height: '64%',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '10px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start',
-            padding: '20px',
-          }}
-        >
-          {/* "We Think" text with different colors */}
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <span style={{ color: '#818286', fontSize: '2.2rem', fontWeight: 'normal' }}>
-              We
-            </span>
-            <span style={{ color: '#35D867', fontSize: '2.2rem', fontWeight: 'normal' }}>
-              Think
-            </span>
-          </div>
-
-          {/* Paragraph below the "We Think" text */}
-          <p 
-            style={{ 
-              color: 'white', 
-              fontSize: '1rem', 
-              marginTop: '20px',
-              lineHeight: '1.6',
-              fontWeight: 'light',
-            }}
-          >
-            At WebCastle Media, everything starts with an idea. We take time to understand your goals, research the market, and come up with creative and strategic solutions.
-          </p>
-        </div>
-      </div>
+      />
+      <FloatingTextBox />
     </div>
   );
 };
